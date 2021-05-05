@@ -1,10 +1,14 @@
 $(document).ready(function(){
     var tamanhoTabuleiro = 10;
-    var bombas = ["00", "02", "03", "10"];
-    var aoRedor = [];
+    var bombas = ["00", "02", "03", "10", "14", "15", "18", "21"]; //vetor de bombas
+    var aoRedor = []; //vetor com as posições adjacentes
+    var quantBombas; //quantidade de bombas ao redor
 
     montaTabuleiro();
 
+    /**
+     * data-hidden - True se a posição está escondida (não foi clicada pelo usuário)
+     */
     function montaTabuleiro(){
         let tabuleiro = document.getElementById('tabuleiro');
         var tabela = `
@@ -16,7 +20,7 @@ $(document).ready(function(){
             `;
             for(let coluna = 0; coluna < tamanhoTabuleiro; coluna++){
                 tabela = tabela + `
-                    <td id="${linha}${coluna}"></td>
+                    <td id="${linha}${coluna}" data-hidden="true"></td>
                 `;
             }
             tabela = tabela + `
@@ -27,38 +31,34 @@ $(document).ready(function(){
             </table>
         `;
         tabuleiro.innerHTML = tabela;
-
-        //console.log(bombas[]);
     }
 
     $("#tabuleiro td").click(function() {
-        //console.log($(this).attr('id'));
 
-        if(bombas.indexOf($(this).attr('id')) > -1){
-            console.log("bomba");
+        if($(this).data("hidden") == true){ //Se está escondido (não foi clicado ainda), faz as verificações
+            if(bombas.indexOf($(this).attr('id')) > -1){ //Se for uma bomba
+                console.log("bomba game over");
+                $(this).text("*");
+            }
+            else{
+                verificaPosicao($(this).attr('id'));
+                $(this).text(quantBombas);
+            }
+
+            $(this).data("hidden", "false"); //Muda o atributo indicando que já foi clicado
         }
-        verificaPosicao($(this).attr('id'));
     });
 
     // Método que verifica a quantidade de bombas ao redor da posição selecionada
     function verificaPosicao(posicao){
-        //console.log(typeof posicao);
         let pos = parseInt(posicao);
         gerarAoRedor(pos);
-        //let aoRedor = [(pos-1).toString()];
-        //aoRedor.push((pos+1).toString());
-        //console.log(typeof pos[0]);
-        //console.log(aoRedor);
-        let quant = 0;
+        quantBombas = 0;
         for(let i = 0; i < 8; i++){
             if(bombas.indexOf(aoRedor[i]) > -1){
-                quant++;
+                quantBombas++;
             }
         }
-        console.log(quant);
-        /*if(bombas.indexOf($(this).attr('id')) > -1){
-            console.log("jdasuoijdaosjd");
-        }*/
     }
 
     // Método para gerar vetor com as posições ao redor da selecionada.
@@ -81,7 +81,6 @@ $(document).ready(function(){
         aoRedor.push((pos+9).toString(), (pos+10).toString(), (pos+11).toString());
 
         console.log(aoRedor);
-
     }
 
 });
